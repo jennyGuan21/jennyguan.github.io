@@ -1,0 +1,41 @@
+name: Auto Deploy Vue to GitHub Pages
+
+on:
+  push:
+    branches: [ "main" ]  # 当 main 分支有推送时触发
+
+# 设置权限，让工作流有权限部署到 GitHub Pages
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+jobs:
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout 代码
+        uses: actions/checkout@v4
+
+      - name: 安装 Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: 安装依赖
+        run: npm ci  # 推荐使用 npm ci 进行干净安装
+
+      - name: 打包项目
+        run: npm run build
+
+      - name: 准备 Pages 部署文件
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: ./dist  # 你的打包输出目录，一般是 dist
+
+      - name: 部署到 GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
