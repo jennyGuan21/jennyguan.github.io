@@ -5,100 +5,84 @@ import { usePriceStore } from '@/stores/price';
 const isVisible = ref(false);
 const priceStore = usePriceStore();
 
-// 获取价格数据
-const priceData = computed(() => priceStore.getAllPrices);
-const priceRange = computed(() => priceStore.getPriceRange);
-const todayPrice = computed(() => priceStore.getTodayPrice);
+// 价格数据模拟
+const priceData = ref({
+  pp: {
+    today: 8950,
+    change: -50,
+    changePercent: -0.55,
+    yesterday: 9000,
+    weekAgo: 9100,
+    monthAgo: 9200
+  },
+  pe: {
+    today: 9200,
+    change: 30,
+    changePercent: 0.33,
+    yesterday: 9170,
+    weekAgo: 9150,
+    monthAgo: 9000
+  },
+  eg: {
+    today: 5200,
+    change: -20,
+    changePercent: -0.38,
+    yesterday: 5220,
+    weekAgo: 5250,
+    monthAgo: 5300
+  },
+  sm: {
+    today: 7800,
+    change: 50,
+    changePercent: 0.64,
+    yesterday: 7750,
+    weekAgo: 7700,
+    monthAgo: 7600
+  }
+});
 
-// 计算每个价格对应的Y坐标
-const getYCoordinate = (price) => {
-  const { min, max } = priceRange.value;
-  const range = max - min;
-  return 100 - ((price - min) / range) * 100;
+// 模拟价格更新
+const updatePrices = () => {
+  // 随机生成价格变化
+  const updatePrice = (currentPrice) => {
+    const change = Math.floor(Math.random() * 100) - 50; // -50 到 49 的随机数
+    return Math.max(0, currentPrice + change);
+  };
+  
+  priceData.value = {
+    pp: {
+      ...priceData.value.pp,
+      today: updatePrice(priceData.value.pp.today),
+      change: priceData.value.pp.today - priceData.value.pp.yesterday,
+      changePercent: ((priceData.value.pp.today - priceData.value.pp.yesterday) / priceData.value.pp.yesterday * 100).toFixed(2)
+    },
+    pe: {
+      ...priceData.value.pe,
+      today: updatePrice(priceData.value.pe.today),
+      change: priceData.value.pe.today - priceData.value.pe.yesterday,
+      changePercent: ((priceData.value.pe.today - priceData.value.pe.yesterday) / priceData.value.pe.yesterday * 100).toFixed(2)
+    },
+    eg: {
+      ...priceData.value.eg,
+      today: updatePrice(priceData.value.eg.today),
+      change: priceData.value.eg.today - priceData.value.eg.yesterday,
+      changePercent: ((priceData.value.eg.today - priceData.value.eg.yesterday) / priceData.value.eg.yesterday * 100).toFixed(2)
+    },
+    sm: {
+      ...priceData.value.sm,
+      today: updatePrice(priceData.value.sm.today),
+      change: priceData.value.sm.today - priceData.value.sm.yesterday,
+      changePercent: ((priceData.value.sm.today - priceData.value.sm.yesterday) / priceData.value.sm.yesterday * 100).toFixed(2)
+    }
+  };
 };
 
-// 生成L华北煤制价格路径
-const chartPathLHuabei = computed(() => {
-  if (priceData.value.length === 0) return '';
-  
-  const stepX = 90 / (priceData.value.length - 1); // 90% width for data
-  let path = '';
-  
-  priceData.value.forEach((item, index) => {
-    const x = (5 + index * stepX).toFixed(2); // 5% left margin
-    const y = (10 + (getYCoordinate(item.L_huabei) * 0.7)).toFixed(2); // 10% top margin, 70% height for data
-    if (index === 0) {
-      path += `M ${x} ${y}`;
-    } else {
-      path += ` L ${x} ${y}`;
-    }
-  });
-  
-  return path;
-});
-
-// 生成L期货主力价格路径
-const chartPathLFutures = computed(() => {
-  if (priceData.value.length === 0) return '';
-  
-  const stepX = 90 / (priceData.value.length - 1); // 90% width for data
-  let path = '';
-  
-  priceData.value.forEach((item, index) => {
-    const x = (5 + index * stepX).toFixed(2); // 5% left margin
-    const y = (10 + (getYCoordinate(item.L_futures) * 0.7)).toFixed(2); // 10% top margin, 70% height for data
-    if (index === 0) {
-      path += `M ${x} ${y}`;
-    } else {
-      path += ` L ${x} ${y}`;
-    }
-  });
-  
-  return path;
-});
-
-// 生成PP华东煤制价格路径
-const chartPathPPHuadong = computed(() => {
-  if (priceData.value.length === 0) return '';
-  
-  const stepX = 90 / (priceData.value.length - 1); // 90% width for data
-  let path = '';
-  
-  priceData.value.forEach((item, index) => {
-    const x = (5 + index * stepX).toFixed(2); // 5% left margin
-    const y = (10 + (getYCoordinate(item.PP_huadong) * 0.7)).toFixed(2); // 10% top margin, 70% height for data
-    if (index === 0) {
-      path += `M ${x} ${y}`;
-    } else {
-      path += ` L ${x} ${y}`;
-    }
-  });
-  
-  return path;
-});
-
-// 生成PP期货主力价格路径
-const chartPathPPFutures = computed(() => {
-  if (priceData.value.length === 0) return '';
-  
-  const stepX = 90 / (priceData.value.length - 1); // 90% width for data
-  let path = '';
-  
-  priceData.value.forEach((item, index) => {
-    const x = (5 + index * stepX).toFixed(2); // 5% left margin
-    const y = (10 + (getYCoordinate(item.PP_futures) * 0.7)).toFixed(2); // 10% top margin, 70% height for data
-    if (index === 0) {
-      path += `M ${x} ${y}`;
-    } else {
-      path += ` L ${x} ${y}`;
-    }
-  });
-  
-  return path;
-});
-
+// 定时更新价格
 onMounted(() => {
   isVisible.value = true;
+  
+  // 每30秒更新一次价格
+  setInterval(updatePrices, 30000);
 });
 </script>
 
@@ -114,19 +98,31 @@ onMounted(() => {
         <div class="price-table">
           <div class="price-item">
             <div class="price-label">聚乙烯(PE)</div>
-            <div class="price-value">{{ todayPrice.PE }}</div>
+            <div class="price-value">{{ priceData.pe.today }}</div>
+            <div class="price-change" :class="{ 'positive': priceData.pe.change >= 0, 'negative': priceData.pe.change < 0 }">
+              {{ priceData.pe.change >= 0 ? '+' : '' }}{{ priceData.pe.change }} ({{ priceData.pe.changePercent }}%)
+            </div>
           </div>
           <div class="price-item">
             <div class="price-label">聚丙烯</div>
-            <div class="price-value">{{ todayPrice.PP }}</div>
+            <div class="price-value">{{ priceData.pp.today }}</div>
+            <div class="price-change" :class="{ 'positive': priceData.pp.change >= 0, 'negative': priceData.pp.change < 0 }">
+              {{ priceData.pp.change >= 0 ? '+' : '' }}{{ priceData.pp.change }} ({{ priceData.pp.changePercent }}%)
+            </div>
           </div>
           <div class="price-item">
             <div class="price-label">乙二醇</div>
-            <div class="price-value">{{ todayPrice.EG }}</div>
+            <div class="price-value">{{ priceData.eg.today }}</div>
+            <div class="price-change" :class="{ 'positive': priceData.eg.change >= 0, 'negative': priceData.eg.change < 0 }">
+              {{ priceData.eg.change >= 0 ? '+' : '' }}{{ priceData.eg.change }} ({{ priceData.eg.changePercent }}%)
+            </div>
           </div>
           <div class="price-item">
             <div class="price-label">苯乙烯</div>
-            <div class="price-value">{{ todayPrice.SM }}</div>
+            <div class="price-value">{{ priceData.sm.today }}</div>
+            <div class="price-change" :class="{ 'positive': priceData.sm.change >= 0, 'negative': priceData.sm.change < 0 }">
+              {{ priceData.sm.change >= 0 ? '+' : '' }}{{ priceData.sm.change }} ({{ priceData.sm.changePercent }}%)
+            </div>
           </div>
         </div>
         
@@ -206,9 +202,26 @@ onMounted(() => {
 
 .price-item {
   display: flex;
-  justify-content: space-between;
-  padding: 10px 0;
+  flex-direction: column;
+  padding: 15px 0;
   border-bottom: 1px solid #dcdcdd;
+}
+
+.price-label {
+  font-weight: 500;
+  color: #595757;
+  margin-bottom: 5px;
+}
+
+.price-value {
+  font-weight: bold;
+  color: #231815;
+  font-size: 1.1rem;
+}
+
+.price-change {
+  font-size: 0.8rem;
+  margin-top: 5px;
 }
 
 .price-item:last-child {
@@ -223,6 +236,19 @@ onMounted(() => {
 .price-value {
   font-weight: bold;
   color: #231815;
+}
+
+.price-change {
+  font-size: 0.8rem;
+  margin-top: 5px;
+}
+
+.price-change.positive {
+  color: #4caf50;
+}
+
+.price-change.negative {
+  color: #f44336;
 }
 
 .price-chart {

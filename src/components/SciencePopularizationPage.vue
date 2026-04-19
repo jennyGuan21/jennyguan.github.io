@@ -81,7 +81,7 @@ const cards = [
 <style scoped>
 .science-page {
   min-height: 100vh;
-  background: #e60012;
+  background: #c6a86f;
   padding: 80px 20px 40px;
 }
 

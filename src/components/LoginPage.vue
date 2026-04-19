@@ -55,10 +55,10 @@ const handleLogin = () => {
 <style scoped>
 .login-page {
   min-height: 100vh;
-  background: #e60012;
+  background: #c6a86f;
   display: flex;
-  justify-content: center;
   align-items: center;
+  justify-content: center;
   padding: 20px;
 }
 

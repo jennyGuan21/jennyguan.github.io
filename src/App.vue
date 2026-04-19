@@ -61,7 +61,7 @@ body {
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
   line-height: 1.6;
   color: #231815;
-  background: #e60012;
+  background: #c6a86f;
 }
 
 .app {

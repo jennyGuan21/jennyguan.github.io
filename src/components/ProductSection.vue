@@ -1,11 +1,20 @@
 <script setup>
 import { ref, onMounted } from 'vue';
+import { useRouter } from 'vue-router';
 
 const isVisible = ref(false);
+const router = useRouter();
 
 onMounted(() => {
   isVisible.value = true;
 });
+
+const navigateToProduct = (productType) => {
+  router.push({
+    path: '/product-center',
+    query: { type: productType }
+  });
+};
 </script>
 
 <template>
@@ -25,7 +34,7 @@ onMounted(() => {
             <p class="product-description">
               为你在采购提供价格保护，锁定原材料成本，在价格上涨时仍能以约定价格采购，规避价格上涨的风险。
             </p>
-            <a href="#" class="product-link">了解详情 ></a>
+            <a href="#/product-center" class="product-link" @click.prevent="navigateToProduct('保价采购')">了解详情 ></a>
           </div>
         </div>
         
@@ -37,7 +46,7 @@ onMounted(() => {
             <p class="product-description">
               为生产户提供价格保护，锁定销售价格上限，在价格下跌时仍能以约定价格销售，同时保留价格上涨时的收益机会。
             </p>
-            <a href="#" class="product-link">了解详情 ></a>
+            <a href="#/product-center" class="product-link" @click.prevent="navigateToProduct('封顶销售')">了解详情 ></a>
           </div>
         </div>
         
@@ -49,7 +58,7 @@ onMounted(() => {
             <p class="product-description">
               在约定价格区间内享受更优惠的价格，既规避了价格大幅波动的风险，又能在区间内获得更好的成本优势。
             </p>
-            <a href="#" class="product-link">了解详情 ></a>
+            <a href="#/product-center" class="product-link" @click.prevent="navigateToProduct('区间结算')">了解详情 ></a>
           </div>
         </div>
       </div>

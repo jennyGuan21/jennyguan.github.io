@@ -1,6 +1,10 @@
 <script setup>
-import { ref } from 'vue'
+import { ref, onMounted, watch } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
+import * as echarts from 'echarts'
 
+const route = useRoute()
+const router = useRouter()
 const activeTab = ref('保价采购')
 
 const tabs = ['保价采购', '封顶销售', '区间结算']
@@ -8,6 +12,298 @@ const tabs = ['保价采购', '封顶销售', '区间结算']
 const switchTab = (tab) => {
   activeTab.value = tab
 }
+
+const navigateToCalculation = () => {
+  router.push('/calculation')
+}
+
+const navigateToCase = (caseType) => {
+  if (caseType === '保价采购') {
+    router.push('/case-baojia')
+  } else if (caseType === '封顶销售') {
+    router.push('/case-fengding')
+  } else if (caseType === '区间结算') {
+    router.push('/case-qujian')
+  }
+}
+
+// 初始化图表
+const initCharts = () => {
+  // 保价采购图表
+  const priceProtectionDom = document.getElementById('price-protection-chart')
+  if (priceProtectionDom) {
+    const priceProtectionChart = echarts.init(priceProtectionDom)
+    const basePrice = 9000
+    const marketPrices = Array.from({length: 21}, (_, i) => basePrice - 2000 + i * 200)
+    
+    priceProtectionChart.setOption({
+      title: {
+        text: '保价采购结算价格对比',
+        left: 'center'
+      },
+      tooltip: {
+        trigger: 'axis'
+      },
+      xAxis: {
+        type: 'category',
+        data: marketPrices,
+        name: '到期日市场价格 (元/吨)',
+        nameLocation: 'middle',
+        nameGap: 30
+      },
+      yAxis: {
+        type: 'value',
+        name: '实际采购成本 (元/吨)',
+        min: Math.min(...marketPrices) - 500
+      },
+      series: [
+        {
+          name: '保价采购方案',
+          type: 'line',
+          data: marketPrices.map(price => Math.min(price, basePrice)),
+          lineStyle: {
+            color: '#e60012',
+            width: 2
+          },
+          areaStyle: {
+            color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+              { offset: 0, color: 'rgba(230, 0, 18, 0.3)' },
+              { offset: 1, color: 'rgba(230, 0, 18, 0.1)' }
+            ])
+          },
+          smooth: true
+        },
+        {
+          name: '普通采购方案',
+          type: 'line',
+          data: marketPrices,
+          lineStyle: {
+            color: '#9e9e9e',
+            width: 2,
+            type: 'dashed'
+          },
+          areaStyle: {
+            color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+              { offset: 0, color: 'rgba(158, 158, 158, 0.3)' },
+              { offset: 1, color: 'rgba(158, 158, 158, 0.1)' }
+            ])
+          },
+          smooth: true
+        }
+      ]
+    })
+  }
+  
+  // 封顶销售图表
+  const floorPriceDom = document.getElementById('floor-price-chart')
+  if (floorPriceDom) {
+    const floorPriceChart = echarts.init(floorPriceDom)
+    const basePrice = 9000
+    const marketPrices = Array.from({length: 21}, (_, i) => basePrice - 2000 + i * 200)
+    
+    floorPriceChart.setOption({
+      title: {
+        text: '封顶销售结算价格对比',
+        left: 'center'
+      },
+      tooltip: {
+        trigger: 'axis'
+      },
+      xAxis: {
+        type: 'category',
+        data: marketPrices,
+        name: '到期日市场价格 (元/吨)',
+        nameLocation: 'middle',
+        nameGap: 30
+      },
+      yAxis: {
+        type: 'value',
+        name: '实际销售收益 (元/吨)',
+        min: Math.min(...marketPrices) - 500
+      },
+      series: [
+        {
+          name: '封顶销售方案',
+          type: 'line',
+          data: marketPrices.map(price => Math.max(price, basePrice)),
+          lineStyle: {
+            color: '#e60012',
+            width: 2
+          },
+          areaStyle: {
+            color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+              { offset: 0, color: 'rgba(230, 0, 18, 0.3)' },
+              { offset: 1, color: 'rgba(230, 0, 18, 0.1)' }
+            ])
+          },
+          smooth: true
+        },
+        {
+          name: '普通销售方案',
+          type: 'line',
+          data: marketPrices,
+          lineStyle: {
+            color: '#9e9e9e',
+            width: 2,
+            type: 'dashed'
+          },
+          areaStyle: {
+            color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+              { offset: 0, color: 'rgba(158, 158, 158, 0.3)' },
+              { offset: 1, color: 'rgba(158, 158, 158, 0.1)' }
+            ])
+          },
+          smooth: true
+        }
+      ]
+    })
+  }
+  
+  // 区间结算图表
+  const rangeSettlementDom = document.getElementById('range-settlement-chart')
+  if (rangeSettlementDom) {
+    const rangeSettlementChart = echarts.init(rangeSettlementDom)
+    const basePrice = 9000
+    const lowerBound = basePrice - 500  // K1
+    const upperBound = basePrice + 500  // K2
+    const marketPrices = Array.from({length: 21}, (_, i) => basePrice - 1500 + i * 150)
+    
+    rangeSettlementChart.setOption({
+      title: {
+        text: '区间结算价格对比',
+        left: 'center'
+      },
+      tooltip: {
+        trigger: 'axis'
+      },
+      xAxis: {
+        type: 'category',
+        data: marketPrices,
+        name: '到期日市场价格 (元/吨)',
+        nameLocation: 'middle',
+        nameGap: 30,
+        axisLine: {
+          lineStyle: {
+            color: '#333'
+          }
+        }
+      },
+      yAxis: {
+        type: 'value',
+        name: '实际结算价格 (元/吨)',
+        min: Math.min(...marketPrices) - 500
+      },
+      series: [
+        {
+          name: '区间结算方案',
+          type: 'line',
+          data: marketPrices.map(price => {
+            // 实现Z型结构：价格上涨到K2后不再上涨，价格下跌时跟随市场价格
+            if (price >= upperBound) {
+              return upperBound
+            }
+            return price
+          }),
+          lineStyle: {
+            color: '#e60012',
+            width: 2
+          },
+          areaStyle: {
+            color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+              { offset: 0, color: 'rgba(230, 0, 18, 0.3)' },
+              { offset: 1, color: 'rgba(230, 0, 18, 0.1)' }
+            ])
+          },
+          smooth: true
+        },
+        {
+          name: '普通交易方案',
+          type: 'line',
+          data: marketPrices,
+          lineStyle: {
+            color: '#9e9e9e',
+            width: 2,
+            type: 'dashed'
+          },
+          areaStyle: {
+            color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+              { offset: 0, color: 'rgba(158, 158, 158, 0.3)' },
+              { offset: 1, color: 'rgba(158, 158, 158, 0.1)' }
+            ])
+          },
+          smooth: true
+        }
+      ],
+      graphic: [
+        {
+          type: 'line',
+          shape: {
+            x1: marketPrices.indexOf(upperBound),
+            y1: 0,
+            x2: marketPrices.indexOf(upperBound),
+            y2: 1
+          },
+          style: {
+            stroke: 'rgba(0, 0, 0, 0.3)',
+            lineWidth: 1,
+            lineDash: [5, 5]
+          },
+          bounding: 'raw',
+          z: 100
+        },
+        {
+          type: 'text',
+          left: marketPrices.indexOf(upperBound) * 100 / (marketPrices.length - 1) + '%',
+          top: '10%',
+          style: {
+            text: '上限 K2',
+            fill: 'rgba(0, 0, 0, 0.6)'
+          },
+          z: 100
+        }
+      ]
+    })
+  }
+}
+
+onMounted(() => {
+  // 检查URL参数，如果有type参数，就设置activeTab为对应的产品类型
+  const productType = route.query.type
+  if (productType && tabs.includes(productType)) {
+    activeTab.value = productType
+  }
+  
+  // 初始化图表
+  setTimeout(() => {
+    initCharts()
+  }, 100)
+})
+
+// 监听标签切换，重新初始化图表
+watch(activeTab, () => {
+  // 增加延迟，确保DOM已经完全渲染
+  setTimeout(() => {
+    initCharts()
+  }, 300)
+})
+
+// 监听窗口大小变化，重新调整图表大小
+window.addEventListener('resize', () => {
+  const priceProtectionChart = echarts.getInstanceByDom(document.getElementById('price-protection-chart'))
+  if (priceProtectionChart) {
+    priceProtectionChart.resize()
+  }
+  
+  const floorPriceChart = echarts.getInstanceByDom(document.getElementById('floor-price-chart'))
+  if (floorPriceChart) {
+    floorPriceChart.resize()
+  }
+  
+  const rangeSettlementChart = echarts.getInstanceByDom(document.getElementById('range-settlement-chart'))
+  if (rangeSettlementChart) {
+    rangeSettlementChart.resize()
+  }
+})
 </script>
 
 <template>
@@ -30,7 +326,7 @@ const switchTab = (tab) => {
         <div v-if="activeTab === '保价采购'" class="tab-content">
           <div class="product-header">
             <h2>保价采购</h2>
-            <button class="btn-apply">立即申请</button>
+            <button class="btn-apply" @click="navigateToCalculation">立即测算</button>
           </div>
           
           <div class="product-description">
@@ -140,14 +436,8 @@ const switchTab = (tab) => {
               
               <div class="chart-section">
                 <h4>保价采购结算价格示意图</h4>
-                <div class="chart-placeholder">
-                  <!-- 这里可以添加实际的图表 -->
-                  <div class="chart-title">结算价格对比图</div>
-                  <div class="chart-content">
-                    <div class="chart-line market-price">市场价格</div>
-                    <div class="chart-line protected-price">保价价格</div>
-                    <div class="chart-line settlement-price">结算价格</div>
-                  </div>
+                <div class="chart-container">
+                  <div id="price-protection-chart" style="width: 100%; height: 400px;"></div>
                 </div>
               </div>
             </div>
@@ -163,34 +453,277 @@ const switchTab = (tab) => {
               <p><strong>场景二：价格下跌至8450元/吨</strong></p>
               <p>市场价格为8450元/吨，企业按市场价格采购，实际成本：8450 × 1000 = 8,450,000元（参考值）</p>
             </div>
-            <button class="btn-case-detail">查看完整案例</button>
+            <button class="btn-case-detail" @click="navigateToCase('保价采购')">查看完整案例</button>
           </div>
         </div>
         
         <div v-else-if="activeTab === '封顶销售'" class="tab-content">
-          <h2>封顶销售</h2>
-          <p>为生产户提供价格保护，锁定销售价格上限，在价格下跌时仍能以约定价格销售，同时保留价格上涨时的收益机会。</p>
-          <p>封顶销售是一种为生产者提供价格保障的工具，通过设定销售价格的上限，生产者可以在价格下跌时获得保护，同时在价格上涨时仍能享受收益。</p>
-          <p>封顶销售的优势：</p>
-          <ul>
-            <li>锁定最低销售价格</li>
-            <li>保留价格上涨时的收益</li>
-            <li>提高生产计划的稳定性</li>
-            <li>增强市场竞争力</li>
-          </ul>
+          <div class="product-header">
+            <h2>封顶销售</h2>
+            <button class="btn-apply" @click="navigateToCalculation">立即测算</button>
+          </div>
+          
+          <div class="product-description">
+            <p>为你销售/库存提供价格保护，锁定销售收入底线，在价格下跌时仍能以约定价格结算，规避价格下跌风险。</p>
+            <p>封顶销售是一种销售与库存价格风险管理的创新金融工具。当你预计未来产品价格可能下跌时，企业可以通过缴纳少量护价费用，锁定销售底价，当市场价格下跌时，企业仍可以按约定护价价格销售，从而规避价格下跌风险。</p>
+          </div>
+          
+          <div class="product-params">
+            <h3>产品参数</h3>
+            <div class="params-grid">
+              <div class="param-item">
+                <span class="param-label">最小量</span>
+                <span class="param-value">50吨</span>
+              </div>
+              <div class="param-item">
+                <span class="param-label">最大量</span>
+                <span class="param-value">5000吨</span>
+              </div>
+              <div class="param-item">
+                <span class="param-label">服务费率</span>
+                <span class="param-value">1.5%</span>
+              </div>
+              <div class="param-item">
+                <span class="param-label">最长周期</span>
+                <span class="param-value">180天</span>
+              </div>
+            </div>
+          </div>
+          
+          <div class="applicable-scenario">
+            <h3>适用场景</h3>
+            <p>适用于有销售计划或持有库存的企业，担心产品价格下跌的企业，希望锁定销售收入的企业，规避价格下跌风险的企业。</p>
+          </div>
+          
+          <div class="product-features">
+            <h3>产品特点</h3>
+            <div class="features-grid">
+              <div class="feature-item">
+                <div class="feature-icon">1</div>
+                <div class="feature-content">
+                  <h4>锁定销售底价</h4>
+                  <p>协议价格为最终结算底价，无论市场价格如何下跌，始终不低于约定价格结算。</p>
+                </div>
+              </div>
+              <div class="feature-item">
+                <div class="feature-icon">2</div>
+                <div class="feature-content">
+                  <h4>支付固定服务费</h4>
+                  <p>只支付固定服务费，无其他额外费用，收益可控，风险可预期。</p>
+                </div>
+              </div>
+              <div class="feature-item">
+                <div class="feature-icon">3</div>
+                <div class="feature-content">
+                  <h4>价格上涨时享收益</h4>
+                  <p>当市场价格高于护价价格时，企业可按市场价格销售，享受上涨收益。</p>
+                </div>
+              </div>
+              <div class="feature-item">
+                <div class="feature-icon">4</div>
+                <div class="feature-content">
+                  <h4>灵活结算方式</h4>
+                  <p>提供多种结算方式，适配企业回款与库存周转节奏。</p>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <div class="applicable-objects">
+            <h3>适用对象</h3>
+            <div class="objects-grid">
+              <div class="object-item">
+                <div class="object-icon">1</div>
+                <div class="object-content">
+                  <h4>上游生产企业</h4>
+                  <p>担心产品跌价、希望锁定生产利润、稳定经营收益的生产型企业。</p>
+                </div>
+              </div>
+              <div class="object-item">
+                <div class="object-icon">2</div>
+                <div class="object-content">
+                  <h4>贸易商</h4>
+                  <p>持有库存待售、希望锁定销售收益、控制敞口风险的贸易企业。</p>
+                </div>
+              </div>
+              <div class="object-item">
+                <div class="object-icon">3</div>
+                <div class="object-content">
+                  <h4>库存持有企业</h4>
+                  <p>有库存积压、担心价格下跌、希望守住收入底线的企业。</p>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <div class="price-mechanism">
+            <h3>价格机制</h3>
+            <div class="mechanism-content">
+              <h4>结算价格计算公式</h4>
+              <div class="formula-section">
+                <p>当护价期结束时，结算价格计算方式如下：</p>
+                <p>当市场价格 ≥ 护价价格时：</p>
+                <p>结算价格 = 市场价格 × 数量</p>
+                <p>当市场价格 ＜ 护价价格时：</p>
+                <p>结算价格 = 护价价格 × 数量</p>
+              </div>
+              
+              <div class="chart-section">
+                <h4>封顶销售结算价格示意图</h4>
+                <div class="chart-container">
+                  <div id="floor-price-chart" style="width: 100%; height: 400px;"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <div class="case-illustration">
+            <h3>案例说明</h3>
+            <div class="case-content">
+              <h4>某化工企业封顶销售案例</h4>
+              <p>某化工企业预计6个月后销售1000吨PE原料，当前市场价格8500元/吨。担心未来价格下跌，选择封顶销售服务。</p>
+              <p><strong>场景一：价格下跌至8000元/吨</strong></p>
+              <p>市场价格8000元/吨，企业仍按护价价格8500元/吨结算，保住收入：(8500-8000)×1000 = 500,000元</p>
+              <p><strong>场景二：价格上涨至8600元/吨</strong></p>
+              <p>市场价格8600元/吨，企业按市场价销售，实际收入：8600×1000 = 8,600,000元</p>
+            </div>
+            <button class="btn-case-detail" @click="navigateToCase('封顶销售')">查看完整案例</button>
+          </div>
         </div>
         
         <div v-else-if="activeTab === '区间结算'" class="tab-content">
-          <h2>区间结算</h2>
-          <p>在约定价格区间内享受更优惠的价格，既规避了价格大幅波动的风险，又能在区间内获得更好的成本优势。</p>
-          <p>区间结算是一种灵活的定价机制，通过设定价格区间，买卖双方可以在区间内享受更优惠的价格，同时规避价格大幅波动的风险。</p>
-          <p>区间结算的优势：</p>
-          <ul>
-            <li>价格区间内享受优惠价格</li>
-            <li>规避价格大幅波动风险</li>
-            <li>提高交易灵活性</li>
-            <li>平衡买卖双方利益</li>
-          </ul>
+          <div class="product-header">
+            <h2>区间结算</h2>
+            <button class="btn-apply" @click="navigateToCalculation">立即测算</button>
+          </div>
+          
+          <div class="product-description">
+            <p>为采购/销售/库存提供价格平滑管理，把价格锁定在安全区间，不赌涨跌，稳定预算与经营节奏。</p>
+            <p>区间结算是一种双向价格风险管理工具。企业不想判断市场涨跌方向，只需设定价格区间，区间内按市场价结算，超出区间按区间边界结算，实现价格波动可控、经营更稳定。</p>
+          </div>
+          
+          <div class="product-params">
+            <h3>产品参数</h3>
+            <div class="params-grid">
+              <div class="param-item">
+                <span class="param-label">最小量</span>
+                <span class="param-value">50吨</span>
+              </div>
+              <div class="param-item">
+                <span class="param-label">最大量</span>
+                <span class="param-value">5000吨</span>
+              </div>
+              <div class="param-item">
+                <span class="param-label">服务费率</span>
+                <span class="param-value">0.8%–1.2%</span>
+              </div>
+              <div class="param-item">
+                <span class="param-label">最长周期</span>
+                <span class="param-value">180天</span>
+              </div>
+            </div>
+          </div>
+          
+          <div class="applicable-scenario">
+            <h3>适用场景</h3>
+            <p>适用于持续采购/销售/库存管理的企业，担心价格大幅波动、不想赌涨跌、希望稳定预算与接单节奏的企业。</p>
+          </div>
+          
+          <div class="product-features">
+            <h3>产品特点</h3>
+            <div class="features-grid">
+              <div class="feature-item">
+                <div class="feature-icon">1</div>
+                <div class="feature-content">
+                  <h4>价格装进安全区间</h4>
+                  <p>设定上下限，超出边界按边界价结算，波动被“装在箱子里”。</p>
+                </div>
+              </div>
+              <div class="feature-item">
+                <div class="feature-icon">2</div>
+                <div class="feature-content">
+                  <h4>费用更低、性价比高</h4>
+                  <p>双向温和保护，服务费显著低于单边保价/护价。</p>
+                </div>
+              </div>
+              <div class="feature-item">
+                <div class="feature-icon">3</div>
+                <div class="feature-content">
+                  <h4>区间内随行就市</h4>
+                  <p>区间内按市场价结算，保留合理收益空间，不浪费行情。</p>
+                </div>
+              </div>
+              <div class="feature-item">
+                <div class="feature-icon">4</div>
+                <div class="feature-content">
+                  <h4>全场景适配</h4>
+                  <p>采购、销售、库存均可使用，一套方案稳全程。</p>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <div class="applicable-objects">
+            <h3>适用对象</h3>
+            <div class="objects-grid">
+              <div class="object-item">
+                <div class="object-icon">1</div>
+                <div class="object-content">
+                  <h4>稳定预算型加工企业</h4>
+                  <p>需要稳定报价、稳定成本、不想被波动打乱接单节奏的企业。</p>
+                </div>
+              </div>
+              <div class="object-item">
+                <div class="object-icon">2</div>
+                <div class="object-content">
+                  <h4>长期购销贸易商</h4>
+                  <p>持续采销、希望平滑盈亏、控制整体风险的贸易企业。</p>
+                </div>
+              </div>
+              <div class="object-item">
+                <div class="object-icon">3</div>
+                <div class="object-content">
+                  <h4>稳健经营型企业</h4>
+                  <p>不追求单边暴利、只想要经营确定性、风险中性的企业。</p>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <div class="price-mechanism">
+            <h3>价格机制</h3>
+            <div class="mechanism-content">
+              <h4>结算价格计算公式</h4>
+              <div class="formula-section">
+                <p>当结算期结束时，结算价格计算方式如下：</p>
+                <p>市场价格 ＜ 区间下限：结算价格 = 区间下限 × 数量</p>
+                <p>区间下限 ≤ 市场价格 ≤ 区间上限：结算价格 = 市场价格 × 数量</p>
+                <p>市场价格 ＞ 区间上限：结算价格 = 区间上限 × 数量</p>
+              </div>
+              
+              <div class="chart-section">
+                <h4>区间结算价格示意图</h4>
+                <div class="chart-container">
+                  <div id="range-settlement-chart" style="width: 100%; height: 400px;"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <div class="case-illustration">
+            <h3>案例说明</h3>
+            <div class="case-content">
+              <h4>某塑编企业区间结算案例</h4>
+              <p>某企业未来6个月持续采购PP原料，当前价8500元/吨，设定区间：8200–8800元/吨。</p>
+              <p><strong>场景一：价格涨至9000元/吨（超上限）</strong></p>
+              <p>按上限8800元/吨结算，控制成本上限。</p>
+              <p><strong>场景二：价格跌至7900元/吨（超下限）</strong></p>
+              <p>按下限8200元/吨结算，守住预算底线。</p>
+              <p><strong>场景三：价格在8200–8800之间</strong></p>
+              <p>按市场价正常结算，灵活享受行情。</p>
+            </div>
+            <button class="btn-case-detail" @click="navigateToCase('区间结算')">查看完整案例</button>
+          </div>
         </div>
       </div>
     </div>
@@ -200,7 +733,7 @@ const switchTab = (tab) => {
 <style scoped>
 .product-center-page {
   min-height: 100vh;
-  background: #e60012;
+  background: #c6a86f;
   padding: 80px 20px 40px;
 }
 
@@ -475,6 +1008,15 @@ const switchTab = (tab) => {
 
 .chart-section {
   margin-top: 30px;
+}
+
+.chart-container {
+  padding: 20px;
+  background: white;
+  border: 1px solid #dcdcdd;
+  border-radius: 4px;
+  text-align: center;
+  height: 450px;
 }
 
 .chart-placeholder {

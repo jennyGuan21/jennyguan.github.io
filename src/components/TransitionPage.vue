@@ -16,7 +16,29 @@ onMounted(() => {
 })
 
 const viewPlan = () => {
-  router.push('/purchase-plan')
+  // 从localStorage获取计算结果
+  const storedResult = localStorage.getItem('calculationResult')
+  if (storedResult) {
+    try {
+      const result = JSON.parse(storedResult)
+      // 跳转到采购方案页面，传递计算结果
+      router.push({
+        path: '/purchase-plan',
+        query: {
+          result: storedResult,
+          productType: localStorage.getItem('productType') || 'price-protection',
+          quantity: localStorage.getItem('quantity') || 500,
+          period: localStorage.getItem('period') || 30,
+          variety: localStorage.getItem('variety') || 'PP'
+        }
+      })
+    } catch (error) {
+      console.error('解析计算结果失败:', error)
+      router.push('/purchase-plan')
+    }
+  } else {
+    router.push('/purchase-plan')
+  }
 }
 </script>
 
@@ -48,10 +70,10 @@ const viewPlan = () => {
 <style scoped>
 .transition-page {
   min-height: 100vh;
-  background: #e60012;
+  background: #c6a86f;
   display: flex;
-  justify-content: center;
   align-items: center;
+  justify-content: center;
   padding: 20px;
 }
 

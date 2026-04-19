@@ -11,30 +11,19 @@
           </p>
         </div>
         
-        <div class="footer-links">
-          <h3 class="link-title">快速链接</h3>
-          <ul>
-            <li><a href="#">首页</a></li>
-            <li><a href="#">产品中心</a></li>
-            <li><a href="#">智能测算</a></li>
-            <li><a href="#">案例模拟</a></li>
-          </ul>
-        </div>
-        
-        <div class="footer-links">
-          <h3 class="link-title">联系我们</h3>
-          <p class="contact-item">
-            <span class="contact-icon">📍</span>
-            <span>公司地址：北京市朝阳区金融街88号</span>
-          </p>
-          <p class="contact-item">
-            <span class="contact-icon">📧</span>
-            <span>邮箱：contact@wenlian.com</span>
-          </p>
+        <div class="footer-info">
+          <h3 class="link-title">四联创业集团股份有限公司</h3>
           <p class="contact-item">
             <span class="contact-icon">📞</span>
-            <span>电话：+86 10 8888 8888</span>
+            <span>联系电话：010-81361789</span>
           </p>
+          <p class="contact-item">
+            <span class="contact-icon">📍</span>
+            <span>北京市房山区燕山东流水路7号</span>
+          </p>
+          <div class="company-intro">
+            <p>四联创业集团股份有限公司（简称四联创业集团）成立于2001年，总部位于北京市房山区，是一家以石油化工产品流通为主营业务的民营企业。公司主营聚乙烯、聚丙烯、合成橡胶等产品，广泛应用于农业、包装、汽车等领域。集团注册资本1.16亿元，法定代表人为廖承涛，在全国设有20余家分支机构及30余家子公司，构建了覆盖主流塑料消费地的分销网络，并通过自建仓储物流在30余城市布局40多个仓库，与中石化、中石油等大型化工企业保持长期合作。连续多年入选中国民营企业500强，2025年营业收入366.07亿元，位列第362位。</p>
+          </div>
         </div>
       </div>
     </div>
@@ -59,14 +48,33 @@
 
 .footer-content {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  grid-template-columns: 1fr;
   gap: 40px;
 }
 
 .footer-brand {
-  grid-column: 1 / -1;
   text-align: center;
   margin-bottom: 20px;
+}
+
+.footer-info {
+  max-width: 800px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+.company-intro {
+  margin-top: 20px;
+  padding: 20px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 4px;
+}
+
+.company-intro p {
+  color: #dcdcdd;
+  line-height: 1.6;
+  font-size: 0.9rem;
+  margin: 0;
 }
 
 .logo-text {

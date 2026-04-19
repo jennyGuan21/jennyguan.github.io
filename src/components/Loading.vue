@@ -29,7 +29,7 @@ onMounted(() => {
   left: 0;
   right: 0;
   bottom: 0;
-  background: #e60012;
+  background: #c6a86f;
   display: flex;
   justify-content: center;
   align-items: center;

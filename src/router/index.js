@@ -7,7 +7,10 @@ import PurchasePlanPage from '../components/PurchasePlanPage.vue'
 import TransitionPage from '../components/TransitionPage.vue'
 import SciencePopularizationPage from '../components/SciencePopularizationPage.vue'
 import CaseSimulationPage from '../components/CaseSimulationPage.vue'
-import CaseDetailPage from '../components/CaseDetailPage.vue'
+import CaseBaojiaPage from '../components/CaseBaojiaPage.vue'
+import CaseFengdingPage from '../components/CaseFengdingPage.vue'
+import CaseQujianPage from '../components/CaseQujianPage.vue'
+import SuccessPage from '../components/SuccessPage.vue'
 
 const routes = [
   {
@@ -51,9 +54,21 @@ const routes = [
     component: CaseSimulationPage
   },
   {
-    path: '/case-detail',
-    name: 'CaseDetail',
-    component: CaseDetailPage
+    path: '/case-baojia',
+    redirect: '/case-simulation?type=baojia'
+  },
+  {
+    path: '/case-fengding',
+    redirect: '/case-simulation?type=fengding'
+  },
+  {
+    path: '/case-qujian',
+    redirect: '/case-simulation?type=qujian'
+  },
+  {
+    path: '/success',
+    name: 'Success',
+    component: SuccessPage
   }
 ]
 
