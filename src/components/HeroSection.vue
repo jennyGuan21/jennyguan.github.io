@@ -1,5 +1,8 @@
 <script setup>
 import { ref, onMounted, onUnmounted } from 'vue';
+import hero1 from '../assets/hero-1.jpg';
+import hero2 from '../assets/hero-2.jpg';
+import hero3 from '../assets/hero-3.jpg';
 
 const isVisible = ref(false);
 const currentSlide = ref(0);
@@ -8,19 +11,19 @@ const intervalId = ref(null);
 // 图片列表，用户需要将这些图片放在 src/assets/ 目录下
 const slides = [
   {
-    image: 'hero-1.jpg', // 四联创业集团展会照片
+    image: hero1, // 四联创业集团展会照片
     title: '聚烯烃产业金融风控平台',
     subtitle: '稳定的供应链，为每一次护航',
     description: '为聚烯烃产业链客户提供专业的风险管理服务'
   },
   {
-    image: 'hero-2.jpg', // 四联创业喜报
+    image: hero2, // 四联创业喜报
     title: '四联创业喜报',
     subtitle: '连续5年荣登中国民企500强榜单',
     description: '专业的风险管理服务提供商'
   },
   {
-    image: 'hero-3.jpg', // 四联创业办公大楼
+    image: hero3, // 四联创业办公大楼
     title: '聚烯烃产业金融风控平台',
     subtitle: '稳定的供应链，为每一次护航',
     description: '为聚烯烃产业链客户提供专业的风险管理服务'
@@ -66,7 +69,7 @@ const goToSlide = (index) => {
           class="carousel-slide"
           :class="{ active: currentSlide === index }"
         >
-          <img :src="`/src/assets/${slide.image}`" :alt="slide.title" class="slide-image" />
+          <img :src="slide.image" :alt="slide.title" class="slide-image" />
           <div class="slide-content">
             <h1 class="hero-title">{{ slide.title }}</h1>
             <p class="hero-subtitle">{{ slide.subtitle }}</p>
