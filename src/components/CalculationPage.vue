@@ -71,7 +71,7 @@ const periodOptions = [
 // 获取市场数据
 const fetchMarketData = async () => {
   try {
-    const response = await fetch(`http://localhost:8080/api/market/price?symbol=${variety.value}`)
+    const response = await fetch(`https://jennie123fromchinabeijing-demoback.hf.space/api/market/price?symbol=${variety.value}`)
     if (response.ok) {
       const data = await response.json()
       marketData.value = data
@@ -100,11 +100,11 @@ const handleGeneratePlan = async () => {
     
     let apiEndpoint
     if (productType.value === 'price-protection') {
-      apiEndpoint = 'http://localhost:8080/api/calculation/baojia'
+      apiEndpoint = 'https://jennie123fromchinabeijing-demoback.hf.space/api/calculation/baojia'
     } else if (productType.value === 'floor-price') {
-      apiEndpoint = 'http://localhost:8080/api/calculation/fengding'
+      apiEndpoint = 'https://jennie123fromchinabeijing-demoback.hf.space/api/calculation/fengding'
     } else {
-      apiEndpoint = 'http://localhost:8080/api/calculation/qujian'
+      apiEndpoint = 'https://jennie123fromchinabeijing-demoback.hf.space/api/calculation/qujian'
     }
     
     const response = await fetch(apiEndpoint, {
